@@ -1,8 +1,7 @@
-// Apply required plugins
 plugins {
-    id("com.android.application") // Declares this module as an Android app
-    kotlin("android")             // Enables Kotlin support for Android
-    kotlin("kapt")                // Enables Kotlin Annotation Processing (needed for Room, etc.)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -11,8 +10,8 @@ android {
 
     defaultConfig {
         applicationId = "com.booknerd.EchoPin"
-        minSdk = 24 //minimum support Android version
-        targetSdk = 35 //target Android version
+        minSdk = 24
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -41,8 +40,6 @@ android {
 }
 
 dependencies {
-
-    implementation("androidx.room:room-runtime:2.6.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
