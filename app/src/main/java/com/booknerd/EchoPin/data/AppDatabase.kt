@@ -1,9 +1,11 @@
-package com.booknerd.EchoPin
+package com.booknerd.EchoPin.data
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.booknerd.EchoPin.data.dao.ReminderDao
+import com.booknerd.EchoPin.data.entities.Reminder
 import kotlinx.coroutines.CoroutineScope
 
 @Database(entities = [Reminder::class], version = 1, exportSchema = false)

@@ -1,4 +1,4 @@
-package com.booknerd.EchoPin
+package com.booknerd.EchoPin.data.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
