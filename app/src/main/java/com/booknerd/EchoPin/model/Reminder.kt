@@ -1,6 +1,6 @@
-package model
+package com.booknerd.EchoPin.model
 
 class Reminder {
     val reminderId: Int = 0 //Autogenerate primary key
-    val name = String;
+    val name = String
 }
