@@ -1,19 +1,19 @@
-package com.booknerd.EchoPin.data.entities
+package com.booknerd.echopin.data.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "reminders")
-data class Reminder(
+data class ReminderEntity(
     @PrimaryKey(autoGenerate = true)
     val uid: Int = 0,
 
     @ColumnInfo(name = "title")
-    val title: String?,
+    val title: String,
 
     @ColumnInfo(name = "notification_text")
-    val notificationText: String?,
+    val notificationText: String,
 
     @ColumnInfo(name = "location_latitude")
     val locationLatitude: Double,

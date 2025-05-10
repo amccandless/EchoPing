@@ -1,4 +1,4 @@
-package com.booknerd.EchoPin
+package com.booknerd.echopin
 
 import org.junit.Test
 
