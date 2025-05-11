@@ -1,4 +1,4 @@
-package com.booknerd.EchoPin.ui.theme
+package com.booknerd.echopin.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
