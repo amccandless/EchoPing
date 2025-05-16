@@ -23,4 +23,5 @@ data class ReminderEntity(
 
     @ColumnInfo(name = "location_radius")
     val locationRadius: Double,
+    val isActive: Boolean,
 )

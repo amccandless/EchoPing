@@ -3,7 +3,7 @@ package com.booknerd.echopin.mapper
 import com.booknerd.echopin.data.entities.ReminderEntity
 import com.booknerd.echopin.domain.model.Reminder
 
-class ReminderMapper {
+object ReminderMapper {
 
     //Entity to Domain
     fun ReminderEntity.toDomain(): Reminder {
@@ -11,22 +11,23 @@ class ReminderMapper {
             reminderId = uid,
             reminderName = title,
             locationLatitude = locationLatitude,
-            locationLongtitude = locationLongitude,
-            locationRadius =locationRadius,
+            locationLongitude = locationLongitude,
+            locationRadius = locationRadius,
             notificationText = notificationText,
-            isActive = true
+            isActive = isActive // Using the isActive from the entity
         )
     }
 
     //Domain to Entity
-    fun Reminder.toEntity(): ReminderEntity{
+    fun Reminder.toEntity(): ReminderEntity {
         return ReminderEntity(
-            uid=reminderId,
-            title=reminderName,
+            uid = reminderId,
+            title = reminderName,
             notificationText = notificationText,
             locationLatitude = locationLatitude,
-            locationLongitude = locationLongtitude  ,
+            locationLongitude = locationLongitude,
             locationRadius = locationRadius,
+            isActive = isActive // Persisting the isActive state
         )
     }
 }
