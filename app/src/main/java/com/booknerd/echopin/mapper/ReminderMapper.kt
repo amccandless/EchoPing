@@ -11,7 +11,7 @@ class ReminderMapper {
             reminderId = uid,
             reminderName = title,
             locationLatitude = locationLatitude,
-            locationLongtitude = locationLongitude,
+            locationLongitude = locationLongitude,
             locationRadius =locationRadius,
             notificationText = notificationText,
             isActive = true
@@ -25,7 +25,7 @@ class ReminderMapper {
             title=reminderName,
             notificationText = notificationText,
             locationLatitude = locationLatitude,
-            locationLongitude = locationLongtitude  ,
+            locationLongitude = locationLongitude  ,
             locationRadius = locationRadius,
         )
     }
