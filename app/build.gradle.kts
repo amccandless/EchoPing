@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.booknerd.EchoPin"
+    namespace = "com.booknerd.echopin"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.booknerd.EchoPin"
+        applicationId = "com.booknerd.echopin"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
