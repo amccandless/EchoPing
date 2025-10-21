@@ -21,7 +21,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 
-
 @Composable
 fun LocationPermissionScreen(
     onPermissionGranted: () -> Unit

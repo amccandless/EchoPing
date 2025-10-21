@@ -20,7 +20,6 @@ import androidx.compose.runtime.setValue
 
 import com.booknerd.echopin.ui.theme.ReminderScreen
 
-//
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
