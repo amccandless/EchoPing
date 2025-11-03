@@ -37,7 +37,7 @@ fun LocationPermissionScreen(
         listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+//            Manifest.permission.ACCESS_BACKGROUND_LOCATION
         )
     } else {
         listOf(
@@ -55,8 +55,7 @@ fun LocationPermissionScreen(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { permissions ->
             // For testing, relaying only on the button click logic below.
-        }
-    )
+        })
 
     if (allPermissionsGranted) {
         onPermissionGranted()
@@ -79,20 +78,20 @@ fun LocationPermissionScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { permissionsLauncher.launch(locationPermissions.toTypedArray()) }
+                    onClick = {
+                        permissionsLauncher.launch(locationPermissions.toTypedArray())
+
+                        allPermissionsGranted = true
+                    },
+                    modifier = Modifier.padding(top = 16.dp)
                 ) {
-                    Text("Grant Permissions")
+                    Text("Grant Permissions (Test Mode)")
                 }
             }
         }
     }
 }
 
-private fun areAllPermissionsGranted(context: Context, permissions: List<String>): Boolean {
-    return permissions.all {
-        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-    }
-}
 
 //This is the actual function, commented out for testing
 //@Composable
@@ -153,9 +152,10 @@ private fun areAllPermissionsGranted(context: Context, permissions: List<String>
 //    }
 //}
 //
-//// Helper function to check if all permissions are granted
-//private fun areAllPermissionsGranted(context: Context, permissions: List<String>): Boolean {
-//    return permissions.all {
-//        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-//    }
+// Helper function to check if all permissions are granted
+private fun areAllPermissionsGranted(context: Context, permissions: List<String>): Boolean {
+    return permissions.all {
+        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
+}
 //}
