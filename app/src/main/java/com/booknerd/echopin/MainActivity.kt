@@ -28,11 +28,9 @@ class MainActivity : ComponentActivity() {
             MyApplicationTheme {
                 var isLocationPermissionGranted by remember { mutableStateOf(false) }
 
-                // Define state required at the Activity/Scaffold level
                 val snackbarHostState = remember { SnackbarHostState() }
 
                 if (isLocationPermissionGranted) {
-                    // Call your main content screen here!
                     ReminderScreen(snackbarHostState = snackbarHostState)
                 } else {
                     LocationPermissionScreen(
