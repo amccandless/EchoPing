@@ -69,7 +69,7 @@ fun ReminderScreen(snackbarHostState: SnackbarHostState) {
     }
 }
 
-// Reusable FAB Composable
+// Reusable Floating Action Button (FAB) Composable
 @Composable
 fun AddNew_FAB(onClick: () -> Unit) {
     FloatingActionButton(
