@@ -8,13 +8,15 @@ import androidx.room.Query
 import androidx.room.Update
 import com.booknerd.echopin.data.entities.ReminderEntity
 
+import kotlinx.coroutines.flow.Flow
+
 @Dao
 interface ReminderDao {
     @Query("SELECT * FROM reminders")
-    fun getAllReminders(): List<ReminderEntity>
+    fun getAllReminders(): Flow<List<ReminderEntity>>
 
     @Query("SELECT * FROM reminders WHERE uid IN (:ids)")
-    fun loadAllByIds(ids: IntArray): List<ReminderEntity>
+    fun loadAllByIds(ids: IntArray): Flow<List<ReminderEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(vararg reminders: ReminderEntity)

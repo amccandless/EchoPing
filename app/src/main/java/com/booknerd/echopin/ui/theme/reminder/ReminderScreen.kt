@@ -1,4 +1,4 @@
-package com.booknerd.echopin.ui.theme
+package com.booknerd.echopin.ui.theme.reminder
 
 //item UI
 import androidx.compose.foundation.layout.Arrangement
