@@ -1,7 +1,9 @@
 package com.booknerd.echopin.domain.model
 
+import java.util.UUID
+
 class Reminder(
-    val reminderId: Int,               //Id for reminder
+    val reminderId: UUID,               //Id for reminder
     val reminderName: String,          //Name of the reminder
     val locationLatitude: Double,              //Latitude for location
     val locationLongitude: Double,            //Longitude for location

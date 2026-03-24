@@ -17,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.booknerd.echopin.controllers.ReminderApp
 
 import com.booknerd.echopin.ui.theme.reminder.ReminderScreen
 
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
                 val snackbarHostState = remember { SnackbarHostState() }
 
                 if (isLocationPermissionGranted) {
-                    ReminderScreen(snackbarHostState = snackbarHostState)
+                    ReminderApp(snackbarHostState = snackbarHostState)
                 } else {
                     LocationPermissionScreen(
                         onPermissionGranted = {
@@ -41,19 +42,19 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    @Composable
-    fun Greeting(name: String, modifier: Modifier = Modifier) {
-        Text(
-            text = "Hello $name!",
-            modifier = modifier
-        )
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun GreetingPreview() {
-        MyApplicationTheme {
-            Greeting("Android 15")
-        }
-    }
+//    @Composable
+//    fun Greeting(name: String, modifier: Modifier = Modifier) {
+//        Text(
+//            text = "Hello $name!",
+//            modifier = modifier
+//        )
+//    }
+//
+//    @Preview(showBackground = true)
+//    @Composable
+//    fun GreetingPreview() {
+//        MyApplicationTheme {
+//            Greeting("Android 15")
+//        }
+//    }
 }
