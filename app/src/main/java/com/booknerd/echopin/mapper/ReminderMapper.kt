@@ -8,26 +8,28 @@ object ReminderMapper {
     //Entity to Domain
     fun ReminderEntity.toDomain(): Reminder {
         return Reminder(
-            reminderId = uid,
-            reminderName = title,
+            reminderId = id,
+            reminderName = reminderName,
+            notificationText = notificationText,
             locationLatitude = locationLatitude,
             locationLongitude = locationLongitude,
             locationRadius = locationRadius,
-            notificationText = notificationText,
-            isActive = isActive // Using the isActive from the entity
+            triggerType = triggerType,
+            isActive = isActive
         )
     }
 
     //Domain to Entity
     fun Reminder.toEntity(): ReminderEntity {
         return ReminderEntity(
-            uid = reminderId,
-            title = reminderName,
+            id = reminderId,
+            reminderName = reminderName,
             notificationText = notificationText,
             locationLatitude = locationLatitude,
             locationLongitude = locationLongitude,
             locationRadius = locationRadius,
-            isActive = isActive // Persisting the isActive state
+            triggerType = triggerType,
+            isActive = isActive
         )
     }
 }

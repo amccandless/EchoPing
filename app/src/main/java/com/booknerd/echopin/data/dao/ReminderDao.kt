@@ -15,15 +15,18 @@ interface ReminderDao {
     @Query("SELECT * FROM reminders")
     fun getAllReminders(): Flow<List<ReminderEntity>>
 
-    @Query("SELECT * FROM reminders WHERE uid IN (:ids)")
-    fun loadAllByIds(ids: IntArray): Flow<List<ReminderEntity>>
+    @Query("SELECT * FROM reminders WHERE uid = :id")
+    suspend fun getById(id: String): ReminderEntity?
+
+    @Query("SELECT * FROM reminders WHERE is_active = 1")
+    suspend fun getActive(): List<ReminderEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(vararg reminders: ReminderEntity)
 
-    @Delete
-    suspend fun delete(reminder: ReminderEntity)
-
     @Update
     suspend fun updateReminders(vararg reminders: ReminderEntity)
+
+    @Delete
+    suspend fun delete(reminder: ReminderEntity)
 }

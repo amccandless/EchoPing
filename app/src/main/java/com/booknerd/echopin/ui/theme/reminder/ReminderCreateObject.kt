@@ -2,12 +2,17 @@ package com.booknerd.echopin.ui.theme.reminder
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.booknerd.echopin.domain.model.Reminder
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -16,16 +21,30 @@ fun ReminderCreateObject(
     onSave: (Reminder) -> Unit,
     onBack: () -> Unit
 ) {
-    // State for each form field
+    // 1. State (what you already have)
     var name by remember { mutableStateOf("") }
     var latitude by remember { mutableStateOf("") }
     var longitude by remember { mutableStateOf("") }
     var radius by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
 
+    // 2. Validation (new): parsed values, null if invalid
+    val lat = latitude.toDoubleOrNull()?.takeIf { it in -90.0..90.0 }
+    val lon = longitude.toDoubleOrNull()?.takeIf { it in -180.0..180.0 }
+    val rad = radius.toFloatOrNull()?.takeIf { it >= 100f }
+    val isValid = name.isNotBlank() && message.isNotBlank() &&
+            lat != null && lon != null && rad != null
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("New Reminder") })
+            TopAppBar(
+                title = { Text("New Reminder") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                    }
+                }
+            )
         }
     ) { padding ->
         Column(
@@ -48,12 +67,16 @@ fun ReminderCreateObject(
                     value = latitude,
                     onValueChange = { latitude = it },
                     label = { Text("Latitude") },
+                    isError = latitude.isNotEmpty() && lat == null,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.weight(1f)
                 )
                 OutlinedTextField(
                     value = longitude,
                     onValueChange = { longitude = it },
                     label = { Text("Longitude") },
+                    isError = longitude.isNotEmpty() && lon == null,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -61,11 +84,12 @@ fun ReminderCreateObject(
             OutlinedTextField(
                 value = radius,
                 onValueChange = { radius = it },
-                label = { Text("Radius (meters)") },
+                label = { Text("Radius (meters, min 100)") },
+                isError = radius.isNotEmpty() && rad == null,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // The actual message the notification will show
             OutlinedTextField(
                 value = message,
                 onValueChange = { message = it },
@@ -76,19 +100,18 @@ fun ReminderCreateObject(
 
             Button(
                 onClick = {
-                    // Create the domain object
-                    val newReminder = Reminder(
-                        reminderId = UUID.randomUUID(), // Usually handled by Room/DB autoincrement
-                        reminderName = name,
-                        locationLatitude = latitude.toDoubleOrNull() ?: 0.0,
-                        locationLongitude = longitude.toDoubleOrNull() ?: 0.0,
-                        locationRadius = radius.toDoubleOrNull() ?: 100.0,
-                        notificationText = message
+                    onSave(
+                        Reminder(
+                            reminderName = name,
+                            notificationText = message,
+                            locationLatitude = lat!!,
+                            locationLongitude = lon!!,
+                            locationRadius = rad!!
+                        )
                     )
-                    onSave(newReminder)
                 },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = name.isNotBlank() && message.isNotBlank()
+                enabled = isValid,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Save Reminder")
             }
