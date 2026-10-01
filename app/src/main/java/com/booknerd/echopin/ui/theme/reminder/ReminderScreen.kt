@@ -1,0 +1,125 @@
+package com.booknerd.echopin.ui.theme.reminder
+
+//item UI
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.booknerd.echopin.domain.model.Reminder
+import androidx.compose.foundation.lazy.items
+import kotlinx.coroutines.launch
+
+@Composable
+fun ReminderScreen(
+    reminders: List<Reminder>, // Now takes a list of objects
+    onNavigateToCreate: () -> Unit // Callback for the FAB
+) {
+    Scaffold(
+        floatingActionButton = {
+            AddNew_FAB {
+                onNavigateToCreate()
+            }
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Adding the 'key' helps with performance and avoids common index errors
+            items(
+                items = reminders,
+                key = { it.reminderId }
+            ) { reminder ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = reminder.reminderName,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = reminder.notificationText,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+        //
+//    // CoroutineScope and State management live within the Composable.
+//    val coroutineScope = rememberCoroutineScope()
+//    val reminderItems = remember { mutableStateListOf<String>() }
+//
+//    // Scaffold provides the overall screen structure.
+//    Scaffold(
+//        snackbarHost = { SnackbarHost(snackbarHostState) },
+//        floatingActionButton = {
+//            AddNew_FAB {
+//                // Logic to update state and show the Snackbar on button click
+//                coroutineScope.launch {
+//                    snackbarHostState.showSnackbar("Adding new reminder, please wait")
+//                    reminderItems.add("Reminder ${reminderItems.size + 1}")
+//                }
+//            }
+//        }
+//    ) { paddingValues ->
+//        // The main content body
+//        LazyColumn(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(paddingValues)
+//                .padding(horizontal = 70.dp),
+//            verticalArrangement = Arrangement.spacedBy(20.dp),
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            items(reminderItems) { item ->
+//                Card(
+//                    modifier = Modifier.fillMaxWidth()
+//                ) {
+//                    Text(
+//                        text = item,
+//                        modifier = Modifier.padding(16.dp)
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
+//
+// Reusable FAB Composable
+        @Composable
+        fun AddNew_FAB(onClick: () -> Unit) {
+            FloatingActionButton(
+                onClick = onClick,
+                shape = CircleShape,
+            ) {
+                Icon(Icons.Filled.Add, "Large FAB, add new item")
+            }
+        }
