@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.navigation.compose)
     val room_version = "2.7.1"
 
     implementation(libs.androidx.core.ktx)
