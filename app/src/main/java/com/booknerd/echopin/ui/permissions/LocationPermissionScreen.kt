@@ -85,7 +85,7 @@ fun LocationPermissionScreen(
                     },
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
-                    Text("Grant Permissions (Test Mode)")
+                    Text("Grant Permissions")
                 }
             }
         }

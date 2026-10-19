@@ -1,16 +1,13 @@
 package com.booknerd.echopin
 
 import LocationPermissionScreen
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 
 import com.booknerd.echopin.ui.theme.MyApplicationTheme
 
@@ -21,10 +18,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import com.booknerd.echopin.controllers.ReminderApp
+import dagger.hilt.android.AndroidEntryPoint
 
-import com.booknerd.echopin.ui.theme.reminder.ReminderScreen
-import java.util.jar.Manifest
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +30,7 @@ class MainActivity : ComponentActivity() {
                 var isLocationPermissionGranted by rememberSaveable {
                     mutableStateOf(
                         ContextCompat.checkSelfPermission(
-                            this@MainActivity, android.Manifest.permission.ACCESS_FINE_LOCATION
+                            this@MainActivity, Manifest.permission.ACCESS_FINE_LOCATION
                         ) == PackageManager.PERMISSION_GRANTED
                     )
                 }
@@ -45,13 +41,13 @@ class MainActivity : ComponentActivity() {
                     ReminderApp(snackbarHostState = snackbarHostState)
                 } else {
                     LocationPermissionScreen(
-                        onPermissionGranted = {
-                            isLocationPermissionGranted = true
-                        })
+                        onPermissionGranted = { isLocationPermissionGranted = true }
+                    )
                 }
             }
         }
     }
+}
 //    @Composable
 //    fun Greeting(name: String, modifier: Modifier = Modifier) {
 //        Text(
@@ -67,4 +63,3 @@ class MainActivity : ComponentActivity() {
 //            Greeting("Android 15")
 //        }
 //    }
-}

@@ -2,7 +2,7 @@ package com.booknerd.echopin.domain.model
 
 import java.util.UUID
 
-class Reminder(
+data class Reminder(
     val reminderId: String = UUID.randomUUID().toString(),
     val reminderName: String,
     val notificationText: String,

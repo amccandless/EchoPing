@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -41,6 +43,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.navigation.compose)
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     val room_version = "2.7.1"
 
     implementation(libs.androidx.core.ktx)
@@ -62,4 +65,15 @@ dependencies {
     implementation("javax.inject:javax.inject:1")
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+
+    ksp("androidx.room:room-compiler:$room_version")
+
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.52")
+    ksp("com.google.dagger:hilt-android-compiler:2.52")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // ViewModel + collectAsStateWithLifecycle
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 }

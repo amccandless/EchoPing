@@ -6,8 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.booknerd.echopin.domain.model.Reminder
-import com.booknerd.echopin.ui.theme.reminder.ReminderCreateObject
-import com.booknerd.echopin.ui.theme.reminder.ReminderScreen
+import com.booknerd.echopin.ui.reminder.ReminderCreateObject
+import com.booknerd.echopin.ui.reminder.ReminderScreen
 import kotlinx.coroutines.launch
 
 @Composable

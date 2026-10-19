@@ -1,4 +1,4 @@
-package com.booknerd.echopin.ui.theme.reminder
+package com.booknerd.echopin.ui.reminder
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,8 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.booknerd.echopin.domain.model.Reminder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
