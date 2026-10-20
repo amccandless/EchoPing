@@ -1,8 +1,6 @@
 package com.booknerd.echopin
 
-import LocationPermissionScreen
-import android.Manifest
-import android.content.pm.PackageManager
+import com.booknerd.echopin.ui.permissions.hasAllPermissions
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,8 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
 import com.booknerd.echopin.controllers.ReminderApp
+import com.booknerd.echopin.ui.permissions.LocationPermissionScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -28,11 +26,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 var isLocationPermissionGranted by rememberSaveable {
-                    mutableStateOf(
-                        ContextCompat.checkSelfPermission(
-                            this@MainActivity, Manifest.permission.ACCESS_FINE_LOCATION
-                        ) == PackageManager.PERMISSION_GRANTED
-                    )
+                    mutableStateOf(hasAllPermissions(this@MainActivity))
                 }
 
                 val snackbarHostState = remember { SnackbarHostState() }
@@ -48,18 +42,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-//    @Composable
-//    fun Greeting(name: String, modifier: Modifier = Modifier) {
-//        Text(
-//            text = "Hello $name!",
-//            modifier = modifier
-//        )
-//    }
-//
-//    @Preview(showBackground = true)
-//    @Composable
-//    fun GreetingPreview() {
-//        MyApplicationTheme {
-//            Greeting("Android 15")
-//        }
-//    }

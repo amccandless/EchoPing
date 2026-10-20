@@ -18,9 +18,7 @@ import com.booknerd.echopin.domain.model.Reminder
 object ReminderNotifier {
     private const val CHANNEL_ID = "location_reminders"
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun show(context: Context, reminder: Reminder) {
-        // Android 13+ requires the runtime notification permission
         if (Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED
@@ -28,14 +26,15 @@ object ReminderNotifier {
 
         val manager = context.getSystemService(NotificationManager::class.java)
 
-        // Safe to call repeatedly; Android ignores it if the channel exists
-        manager.createNotificationChannel(
-            NotificationChannel(
-                CHANNEL_ID,
-                "Location reminders",
-                NotificationManager.IMPORTANCE_HIGH
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.createNotificationChannel(
+                NotificationChannel(
+                    CHANNEL_ID,
+                    "Location reminders",
+                    NotificationManager.IMPORTANCE_HIGH
+                )
             )
-        )
+        }
 
         val tapIntent = PendingIntent.getActivity(
             context,

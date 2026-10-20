@@ -1,7 +1,12 @@
+package com.booknerd.echopin.ui.permissions
+
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -12,10 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,136 +31,131 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+
+private enum class Step { FOREGROUND, BACKGROUND, NOTIFICATIONS, DONE }
+
+private fun hasPermission(context: Context, permission: String) =
+    ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+
+fun hasAllPermissions(context: Context): Boolean =
+    hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) &&
+            (Build.VERSION.SDK_INT < 29 ||
+                    hasPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) &&
+            (Build.VERSION.SDK_INT < 33 ||
+                    hasPermission(context, Manifest.permission.POST_NOTIFICATIONS))
+
+private fun currentStep(context: Context): Step = when {
+    !hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) -> Step.FOREGROUND
+    Build.VERSION.SDK_INT >= 29 &&
+            !hasPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) -> Step.BACKGROUND
+    Build.VERSION.SDK_INT >= 33 &&
+            !hasPermission(context, Manifest.permission.POST_NOTIFICATIONS) -> Step.NOTIFICATIONS
+    else -> Step.DONE
+}
 
 @Composable
 fun LocationPermissionScreen(
     onPermissionGranted: () -> Unit
 ) {
     val context = LocalContext.current
+    var step by remember { mutableStateOf(currentStep(context)) }
 
-    val locationPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-//            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        )
-    } else {
-        listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
+    // Re-check when the user returns from a dialog or from Settings
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { step = currentStep(context) }
+
+    LaunchedEffect(step) {
+        if (step == Step.DONE) onPermissionGranted()
     }
 
-    // A state to hold whether all permissions are granted
-    var allPermissionsGranted by remember {
-        mutableStateOf(areAllPermissionsGranted(context, locationPermissions))
-    }
+    val foregroundLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { step = currentStep(context) }
 
-    val permissionsLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions(),
-        onResult = { permissions ->
-            // For testing, relaying only on the button click logic below.
-        })
+    val backgroundLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { step = currentStep(context) }
 
-    if (allPermissionsGranted) {
-        onPermissionGranted()
-    } else {
-        Scaffold()
-         { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding) // Apply padding from the Scaffold
-                    .padding(16.dp), // Then apply your own padding
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    "This app needs location permissions to provide location-based notifications.",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        permissionsLauncher.launch(locationPermissions.toTypedArray())
+    val notificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { step = currentStep(context) }
 
-                        allPermissionsGranted = true
-                    },
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    Text("Grant Permissions")
-                }
+    fun openSettings() {
+        context.startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
             }
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        when (step) {
+            Step.FOREGROUND -> PermissionStep(
+                title = "Precise location",
+                body = "EchoPin needs your precise location to know when you reach a reminder's address. Choose \"Precise\" when asked.",
+                buttonText = "Allow location",
+                onButtonClick = {
+                    foregroundLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
+                },
+                onOpenSettings = ::openSettings
+            )
+
+            Step.BACKGROUND -> PermissionStep(
+                title = "Allow all the time",
+                body = "To remind you when the app is closed, choose \"Allow all the time\" for location.",
+                buttonText = "Continue",
+                onButtonClick = {
+                    backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                },
+                onOpenSettings = ::openSettings
+            )
+
+            Step.NOTIFICATIONS -> PermissionStep(
+                title = "Notifications",
+                body = "Allow notifications so EchoPin can show your reminder when you arrive.",
+                buttonText = "Allow notifications",
+                onButtonClick = {
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                },
+                onOpenSettings = ::openSettings
+            )
+
+            Step.DONE -> {}
         }
     }
 }
 
-
-//This is the actual function, commented out for testing
-//@Composable
-//fun LocationPermissionScreen(
-//    onPermissionGranted: () -> Unit
-//) {
-//    val context = LocalContext.current
-//
-//    // Build the list of permissions we need
-//    val locationPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//        listOf(
-//            Manifest.permission.ACCESS_FINE_LOCATION,
-//            Manifest.permission.ACCESS_COARSE_LOCATION,
-//            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-//        )
-//    } else {
-//        listOf(
-//            Manifest.permission.ACCESS_FINE_LOCATION,
-//            Manifest.permission.ACCESS_COARSE_LOCATION
-//        )
-//    }
-//
-//    // A state to hold whether all permissions are granted
-//    var allPermissionsGranted by remember {
-//        mutableStateOf(areAllPermissionsGranted(context, locationPermissions))
-//    }
-//
-//    // The launcher that will request the permissions
-//    val permissionsLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.RequestMultiplePermissions(),
-//        onResult = { permissions ->
-//            // Check if all permissions in the map are granted
-//            if (permissions.values.all { it }) {
-//                allPermissionsGranted = true
-//            }
-//            // Here you could add logic to handle cases where some permissions were denied
-//        }
-//    )
-//
-//    if (allPermissionsGranted) {
-//        // If we have permission, call the lambda to signal we're ready
-//        onPermissionGranted()
-//    } else {
-//        // If we don't have permissions, show the request UI
-//        Column(
-//            modifier = Modifier.fillMaxSize().padding(16.dp),
-//            verticalArrangement = Arrangement.Center,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Text("This app needs location permissions to provide location-based notifications.")
-//            Button(
-//                onClick = { permissionsLauncher.launch(locationPermissions.toTypedArray()) },
-//                modifier = Modifier.padding(top = 16.dp)
-//            ) {
-//                Text("Grant Permissions")
-//            }
-//        }
-//    }
-//}
-//
-// Helper function to check if all permissions are granted
-private fun areAllPermissionsGranted(context: Context, permissions: List<String>): Boolean {
-    return permissions.all {
-        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-    }
+@Composable
+private fun PermissionStep(
+    title: String,
+    body: String,
+    buttonText: String,
+    onButtonClick: () -> Unit,
+    onOpenSettings: () -> Unit
+) {
+    Text(title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+    Spacer(Modifier.height(8.dp))
+    Text(
+        body,
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(Modifier.height(24.dp))
+    Button(onClick = onButtonClick) { Text(buttonText) }
+    TextButton(onClick = onOpenSettings) { Text("Open Settings") }
 }
-//}
