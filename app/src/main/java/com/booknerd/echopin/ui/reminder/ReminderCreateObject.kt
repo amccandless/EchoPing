@@ -2,10 +2,12 @@ package com.booknerd.echopin.ui.reminder
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,26 +16,43 @@ import androidx.compose.ui.unit.dp
 import com.booknerd.echopin.domain.model.Reminder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import com.booknerd.echopin.data.geocoding.GeoResult
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderCreateObject(
     onSave: (Reminder) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSearch: suspend (String) -> List<GeoResult>
 ) {
-    // 1. State (what you already have)
     var name by remember { mutableStateOf("") }
-    var latitude by remember { mutableStateOf("") }
-    var longitude by remember { mutableStateOf("") }
-    var radius by remember { mutableStateOf("") }
+    var radius by remember { mutableStateOf("150") }
     var message by remember { mutableStateOf("") }
 
-    // 2. Validation (new): parsed values, null if invalid
-    val lat = latitude.toDoubleOrNull()?.takeIf { it in -90.0..90.0 }
-    val lon = longitude.toDoubleOrNull()?.takeIf { it in -180.0..180.0 }
+    // Address search state
+    var addressQuery by remember { mutableStateOf("") }
+    var results by remember { mutableStateOf<List<GeoResult>>(emptyList()) }
+    var selected by remember { mutableStateOf<GeoResult?>(null) }
+    var searching by remember { mutableStateOf(false) }
+    var searched by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    // Validation
     val rad = radius.toFloatOrNull()?.takeIf { it >= 100f }
     val isValid = name.isNotBlank() && message.isNotBlank() &&
-            lat != null && lon != null && rad != null
+            selected != null && rad != null
+
+    fun runSearch() {
+        scope.launch {
+            searching = true
+            results = onSearch(addressQuery)
+            searching = false
+            searched = true
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -62,23 +81,51 @@ fun ReminderCreateObject(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = latitude,
-                    onValueChange = { latitude = it },
-                    label = { Text("Latitude") },
-                    isError = latitude.isNotEmpty() && lat == null,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = longitude,
-                    onValueChange = { longitude = it },
-                    label = { Text("Longitude") },
-                    isError = longitude.isNotEmpty() && lon == null,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.weight(1f)
-                )
+            // Address search
+            OutlinedTextField(
+                value = addressQuery,
+                onValueChange = {
+                    addressQuery = it
+                    selected = null          // editing the text invalidates the earlier pick
+                    searched = false
+                },
+                label = { Text("Address") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { runSearch() }),
+                trailingIcon = {
+                    IconButton(onClick = { runSearch() }) {
+                        Icon(Icons.Filled.Search, "Search")
+                    }
+                }
+            )
+
+            if (searching) LinearProgressIndicator(Modifier.fillMaxWidth())
+
+            if (selected == null) {
+                results.forEach { result ->
+                    TextButton(
+                        onClick = {
+                            selected = result
+                            addressQuery = result.label
+                            results = emptyList()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            result.label,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                }
+                if (searched && !searching && results.isEmpty()) {
+                    Text(
+                        "No matches. Try adding the city or ZIP code.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
 
             OutlinedTextField(
@@ -100,13 +147,14 @@ fun ReminderCreateObject(
 
             Button(
                 onClick = {
+                    val place = selected ?: return@Button
                     onSave(
                         Reminder(
                             reminderName = name,
                             notificationText = message,
-                            locationLatitude = lat!!,
-                            locationLongitude = lon!!,
-                            locationRadius = rad!!
+                            locationLatitude = place.latitude,
+                            locationLongitude = place.longitude,
+                            locationRadius = rad ?: return@Button
                         )
                     )
                 },
