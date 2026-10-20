@@ -7,6 +7,7 @@ data class Reminder(
     val reminderName: String,
     val notificationText: String,
 
+    val address: String = "",
     val locationLatitude: Double,
     val locationLongitude: Double,
     val locationRadius: Float = 150f, //Meters

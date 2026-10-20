@@ -13,6 +13,7 @@ object ReminderMapper {
             notificationText = notificationText,
             locationLatitude = locationLatitude,
             locationLongitude = locationLongitude,
+            address = address,
             locationRadius = locationRadius,
             triggerType = triggerType,
             isActive = isActive
@@ -27,9 +28,10 @@ object ReminderMapper {
             notificationText = notificationText,
             locationLatitude = locationLatitude,
             locationLongitude = locationLongitude,
+            address = address,
             locationRadius = locationRadius,
             triggerType = triggerType,
-            isActive = isActive
+            isActive = isActive,
         )
     }
 }

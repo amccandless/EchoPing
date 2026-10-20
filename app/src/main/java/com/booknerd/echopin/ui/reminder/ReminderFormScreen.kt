@@ -23,27 +23,38 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderCreateObject(
+fun ReminderFormScreen(
+    title: String,
+    initial: Reminder? = null,
     onSave: (Reminder) -> Unit,
     onBack: () -> Unit,
     onSearch: suspend (String) -> List<GeoResult>
 ) {
-    var name by remember { mutableStateOf("") }
-    var radius by remember { mutableStateOf("150") }
-    var message by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(initial?.reminderName ?: "") }
+    var radius by remember {
+        mutableStateOf(initial?.locationRadius?.toInt()?.toString() ?: "150")
+    }
+    var message by remember { mutableStateOf(initial?.notificationText ?: "") }
 
-    // Address search state
-    var addressQuery by remember { mutableStateOf("") }
+    var selected by remember {
+        mutableStateOf(
+            initial?.let {
+                GeoResult(
+                    label = it.address.ifBlank { "${it.locationLatitude}, ${it.locationLongitude}" },
+                    latitude = it.locationLatitude,
+                    longitude = it.locationLongitude
+                )
+            }
+        )
+    }
+    var addressQuery by remember { mutableStateOf(selected?.label ?: "") }
     var results by remember { mutableStateOf<List<GeoResult>>(emptyList()) }
-    var selected by remember { mutableStateOf<GeoResult?>(null) }
     var searching by remember { mutableStateOf(false) }
     var searched by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    // Validation
     val rad = radius.toFloatOrNull()?.takeIf { it >= 100f }
-    val isValid = name.isNotBlank() && message.isNotBlank() &&
-            selected != null && rad != null
+    val isValid = name.isNotBlank() && message.isNotBlank() && selected != null && rad != null
 
     fun runSearch() {
         scope.launch {
@@ -57,7 +68,7 @@ fun ReminderCreateObject(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("New Reminder") },
+                title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
@@ -81,12 +92,11 @@ fun ReminderCreateObject(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Address search
             OutlinedTextField(
                 value = addressQuery,
                 onValueChange = {
                     addressQuery = it
-                    selected = null          // editing the text invalidates the earlier pick
+                    selected = null
                     searched = false
                 },
                 label = { Text("Address") },
@@ -113,11 +123,7 @@ fun ReminderCreateObject(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            result.label,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Start
-                        )
+                        Text(result.label, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
                     }
                 }
                 if (searched && !searching && results.isEmpty()) {
@@ -148,20 +154,28 @@ fun ReminderCreateObject(
             Button(
                 onClick = {
                     val place = selected ?: return@Button
-                    onSave(
-                        Reminder(
-                            reminderName = name,
-                            notificationText = message,
-                            locationLatitude = place.latitude,
-                            locationLongitude = place.longitude,
-                            locationRadius = rad ?: return@Button
-                        )
+                    val r = rad ?: return@Button
+                    val reminder = initial?.copy(
+                        reminderName = name.trim(),
+                        notificationText = message.trim(),
+                        address = place.label,
+                        locationLatitude = place.latitude,
+                        locationLongitude = place.longitude,
+                        locationRadius = r
+                    ) ?: Reminder(
+                        reminderName = name.trim(),
+                        notificationText = message.trim(),
+                        address = place.label,
+                        locationLatitude = place.latitude,
+                        locationLongitude = place.longitude,
+                        locationRadius = r
                     )
+                    onSave(reminder)
                 },
                 enabled = isValid,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Save Reminder")
+                Text(if (initial == null) "Save Reminder" else "Save Changes")
             }
         }
     }

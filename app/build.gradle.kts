@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.benchmark.traceprocessor)
     implementation(libs.androidx.navigation.compose)
     implementation("com.google.android.gms:play-services-location:21.3.0")
     val room_version = "2.7.1"

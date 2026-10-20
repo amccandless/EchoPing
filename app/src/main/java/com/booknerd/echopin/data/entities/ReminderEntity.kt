@@ -15,6 +15,7 @@ data class ReminderEntity(
 
    @ColumnInfo(name = "location_latitude") val locationLatitude: Double,
    @ColumnInfo(name = "location_longitude") val locationLongitude: Double,
+   @ColumnInfo(name = "address") val address: String = "",
 
    @ColumnInfo(name = "location_radius") val locationRadius: Float,
 

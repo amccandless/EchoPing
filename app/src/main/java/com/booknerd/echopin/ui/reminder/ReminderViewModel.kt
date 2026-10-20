@@ -28,4 +28,6 @@ class ReminderViewModel @Inject constructor(
         viewModelScope.launch { reminderRepo.setActive(reminder, active) }
 
     suspend fun searchAddress(query: String): List<GeoResult> = geocodingService.search(query)
+
+    fun updateReminder(reminder: Reminder) = viewModelScope.launch { reminderRepo.update(reminder) }
 }

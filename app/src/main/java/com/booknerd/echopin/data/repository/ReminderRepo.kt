@@ -36,6 +36,12 @@ class ReminderRepo @Inject constructor(
         if (active) geofenceManager.register(updated) else geofenceManager.remove(updated.reminderId)
     }
 
+    suspend fun update(reminder: Reminder) {
+        reminderDao.updateReminders(reminder.toEntity())
+        if (reminder.isActive) geofenceManager.register(reminder)
+        else geofenceManager.remove(reminder.reminderId)
+    }
+
     suspend fun getById(id: String): Reminder? = reminderDao.getById(id)?.toDomain()
 
     suspend fun reregisterAll() {
