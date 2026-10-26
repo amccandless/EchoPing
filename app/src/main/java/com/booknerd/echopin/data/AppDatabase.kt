@@ -23,7 +23,6 @@ abstract class AppDatabase: RoomDatabase() {
                     AppDatabase::class.java,
                     "reminder_database"
                 )
-                    // Pre-release: schemas before v2 were never versioned, so they can't be migrated.
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                 INSTANCE = instance
