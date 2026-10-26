@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.remember
 
-import com.booknerd.echopin.ui.theme.MyApplicationTheme
+import com.booknerd.echopin.ui.theme.EchoPinTheme
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyApplicationTheme {
+            EchoPinTheme {
                 var isLocationPermissionGranted by rememberSaveable {
                     mutableStateOf(hasAllPermissions(this@MainActivity))
                 }

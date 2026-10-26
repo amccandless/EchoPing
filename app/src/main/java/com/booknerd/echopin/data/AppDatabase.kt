@@ -8,7 +8,7 @@ import com.booknerd.echopin.data.dao.ReminderDao
 import com.booknerd.echopin.data.entities.ReminderEntity
 import kotlinx.coroutines.CoroutineScope
 
-@Database(entities = [ReminderEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ReminderEntity::class], version = 2, exportSchema = false)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun reminderDao(): ReminderDao
 
@@ -22,7 +22,10 @@ abstract class AppDatabase: RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "reminder_database"
-                ).build()
+                )
+                    // Pre-release: schemas before v2 were never versioned, so they can't be migrated.
+                    .fallbackToDestructiveMigration(dropAllTables = true)
+                    .build()
                 INSTANCE = instance
                 instance
             }

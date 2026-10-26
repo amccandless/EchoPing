@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.booknerd.echopin.domain.model.Reminder
+import com.booknerd.echopin.domain.model.TriggerType
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.text.input.ImeAction
@@ -35,6 +36,7 @@ fun ReminderFormScreen(
         mutableStateOf(initial?.locationRadius?.toInt()?.toString() ?: "150")
     }
     var message by remember { mutableStateOf(initial?.notificationText ?: "") }
+    var triggerType by remember { mutableStateOf(initial?.triggerType ?: TriggerType.ENTER) }
 
     var selected by remember {
         mutableStateOf(
@@ -143,6 +145,26 @@ fun ReminderFormScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Remind me", style = MaterialTheme.typography.labelLarge)
+                val options = listOf(
+                    TriggerType.ENTER to "When I arrive",
+                    TriggerType.EXIT to "When I leave",
+                    TriggerType.BOTH to "Both"
+                )
+                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                    options.forEachIndexed { index, (type, label) ->
+                        SegmentedButton(
+                            selected = triggerType == type,
+                            onClick = { triggerType = type },
+                            shape = SegmentedButtonDefaults.itemShape(index, options.size)
+                        ) {
+                            Text(label, maxLines = 1)
+                        }
+                    }
+                }
+            }
+
             OutlinedTextField(
                 value = message,
                 onValueChange = { message = it },
@@ -161,14 +183,16 @@ fun ReminderFormScreen(
                         address = place.label,
                         locationLatitude = place.latitude,
                         locationLongitude = place.longitude,
-                        locationRadius = r
+                        locationRadius = r,
+                        triggerType = triggerType
                     ) ?: Reminder(
                         reminderName = name.trim(),
                         notificationText = message.trim(),
                         address = place.label,
                         locationLatitude = place.latitude,
                         locationLongitude = place.longitude,
-                        locationRadius = r
+                        locationRadius = r,
+                        triggerType = triggerType
                     )
                     onSave(reminder)
                 },
