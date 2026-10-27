@@ -20,7 +20,11 @@ import com.booknerd.echoping.ui.reminder.ReminderDetailScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun ReminderApp(snackbarHostState: SnackbarHostState) {
+fun ReminderApp(
+    snackbarHostState: SnackbarHostState,
+    isDarkTheme: Boolean,
+    onToggleTheme: () -> Unit
+) {
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
 
@@ -53,6 +57,8 @@ fun ReminderApp(snackbarHostState: SnackbarHostState) {
             ReminderScreen(
                 reminders = reminders,
                 snackbarHostState = snackbarHostState,
+                isDarkTheme = isDarkTheme,
+                onToggleTheme = onToggleTheme,
                 onNavigateToCreate = { navController.navigate("create") },
                 onReminderClick = { navController.navigate("detail/${it.reminderId}") },
                 onToggleActive = { reminder, active -> viewModel.setActive(reminder, active) },

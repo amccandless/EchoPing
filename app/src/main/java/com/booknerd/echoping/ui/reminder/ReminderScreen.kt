@@ -17,6 +17,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.res.painterResource
+import com.booknerd.echoping.R
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,10 +41,13 @@ import com.booknerd.echoping.domain.model.Reminder
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderScreen(
     reminders: List<Reminder>,
     snackbarHostState: SnackbarHostState,
+    isDarkTheme: Boolean,
+    onToggleTheme: () -> Unit,
     onNavigateToCreate: () -> Unit,
     onReminderClick: (Reminder) -> Unit,
     onToggleActive: (Reminder, Boolean) -> Unit,
@@ -66,6 +73,19 @@ fun ReminderScreen(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Reminders") },
+                actions = {
+                    IconButton(onClick = onToggleTheme) {
+                        Icon(
+                            painterResource(if (isDarkTheme) R.drawable.ic_light_mode else R.drawable.ic_dark_mode),
+                            contentDescription = if (isDarkTheme) "Switch to light mode" else "Switch to dark mode"
+                        )
+                    }
+                }
+            )
+        },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = { AddNew_FAB { onNavigateToCreate() } }
     ) { paddingValues ->
