@@ -4,14 +4,21 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    alias(libs.plugins.secrets.gradle.plugin)
+}
+
+// Reads MAPS_API_KEY from local.properties; falls back to the committed placeholder.
+secrets {
+    propertiesFileName = "local.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
 }
 
 android {
-    namespace = "com.booknerd.echopin"
+    namespace = "com.booknerd.echoping"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.booknerd.echopin"
+        applicationId = "com.booknerd.echoping"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -45,6 +52,8 @@ dependencies {
     implementation(libs.androidx.benchmark.traceprocessor)
     implementation(libs.androidx.navigation.compose)
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation(libs.play.services.maps)
+    implementation(libs.maps.compose)
     val room_version = "2.7.1"
 
     implementation(libs.androidx.core.ktx)

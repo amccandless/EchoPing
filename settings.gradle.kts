@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "EchoPin"
+rootProject.name = "EchoPing"
 include(":app")
  

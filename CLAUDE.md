@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-EchoPin is a single-module Android app (`:app`, package `com.booknerd.echopin`) for location-based reminders: the user picks a place, and a geofence fires a notification on enter, exit, or both. It's built with Kotlin, Jetpack Compose (Material 3), Room, Hilt, and Google Play Services Location. minSdk 24, target/compile SDK 35, JVM 11.
+EchoPing is a single-module Android app (`:app`, package `com.booknerd.echoping`) for location-based reminders: the user picks a place, and a geofence fires a notification on enter, exit, or both. It's built with Kotlin, Jetpack Compose (Material 3), Room, Hilt, and Google Play Services Location. minSdk 24, target/compile SDK 35, JVM 11.
 
 ## Commands
 
@@ -14,8 +14,8 @@ Use `./gradlew` from Git Bash or `.\gradlew.bat` from PowerShell.
 ./gradlew assembleDebug                 # build debug APK
 ./gradlew installDebug                  # build + install on connected device/emulator
 ./gradlew testDebugUnitTest             # JVM unit tests (app/src/test)
-./gradlew testDebugUnitTest --tests "com.booknerd.echopin.ReminderMapperTest"   # single class
-./gradlew testDebugUnitTest --tests "com.booknerd.echopin.ReminderMapperTest.someMethod"  # single test
+./gradlew testDebugUnitTest --tests "com.booknerd.echoping.ReminderMapperTest"   # single class
+./gradlew testDebugUnitTest --tests "com.booknerd.echoping.ReminderMapperTest.someMethod"  # single test
 ./gradlew connectedDebugAndroidTest     # instrumented tests (needs device)
 ./gradlew lint
 ```

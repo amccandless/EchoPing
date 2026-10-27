@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/echoping_background"/>
+    <foreground android:drawable="@mipmap/echoping_foreground"/>
+    <monochrome android:drawable="@mipmap/echoping_monochrome"/>
+</adaptive-icon>
