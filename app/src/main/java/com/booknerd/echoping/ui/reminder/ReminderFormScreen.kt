@@ -2,17 +2,17 @@ package com.booknerd.echoping.ui.reminder
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.booknerd.echoping.domain.model.Reminder
+import com.booknerd.echoping.domain.model.Schedule
 import com.booknerd.echoping.domain.model.TriggerType
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,7 +20,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import com.booknerd.echoping.data.geocoding.GeoResult
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import java.time.LocalDate
+
+private const val MIN_QUERY_LENGTH = 3
+private const val SEARCH_DEBOUNCE_MS = 500L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +39,9 @@ fun ReminderFormScreen(
     var radius by remember { mutableFloatStateOf(initial?.locationRadius ?: 150f) }
     var message by remember { mutableStateOf(initial?.notificationText ?: "") }
     var triggerType by remember { mutableStateOf(initial?.triggerType ?: TriggerType.ENTER) }
+    var schedule by remember {
+        mutableStateOf(initial?.schedule ?: Schedule(dayOfMonth = LocalDate.now().dayOfMonth))
+    }
 
     var selected by remember {
         mutableStateOf(
@@ -51,16 +58,24 @@ fun ReminderFormScreen(
     var results by remember { mutableStateOf<List<GeoResult>>(emptyList()) }
     var searching by remember { mutableStateOf(false) }
     var searched by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
-    val isValid = name.isNotBlank() && message.isNotBlank() && selected != null
+    val isValid = name.isNotBlank() && message.isNotBlank() && selected != null && schedule.isValid
 
-    fun runSearch() {
-        scope.launch {
-            searching = true
-            results = onSearch(addressQuery)
+    // Search as the user types. A new keystroke cancels the pending search, so it only
+    // runs once they pause.
+    LaunchedEffect(addressQuery) {
+        if (selected != null || addressQuery.trim().length < MIN_QUERY_LENGTH) {
+            results = emptyList()
             searching = false
+            return@LaunchedEffect
+        }
+        delay(SEARCH_DEBOUNCE_MS)
+        searching = true
+        try {
+            results = onSearch(addressQuery.trim())
             searched = true
+        } finally {
+            searching = false
         }
     }
 
@@ -99,13 +114,19 @@ fun ReminderFormScreen(
                     searched = false
                 },
                 label = { Text("Address") },
+                placeholder = { Text("Start typing an address or place") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { runSearch() }),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 trailingIcon = {
-                    IconButton(onClick = { runSearch() }) {
-                        Icon(Icons.Filled.Search, "Search")
+                    if (addressQuery.isNotEmpty()) {
+                        IconButton(onClick = {
+                            addressQuery = ""
+                            selected = null
+                            searched = false
+                        }) {
+                            Icon(Icons.Filled.Clear, "Clear address")
+                        }
                     }
                 }
             )
@@ -168,6 +189,12 @@ fun ReminderFormScreen(
                 }
             }
 
+            ScheduleSection(
+                schedule = schedule,
+                onChange = { schedule = it },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             OutlinedTextField(
                 value = message,
                 onValueChange = { message = it },
@@ -186,7 +213,8 @@ fun ReminderFormScreen(
                         locationLatitude = place.latitude,
                         locationLongitude = place.longitude,
                         locationRadius = radius,
-                        triggerType = triggerType
+                        triggerType = triggerType,
+                        schedule = schedule
                     ) ?: Reminder(
                         reminderName = name.trim(),
                         notificationText = message.trim(),
@@ -194,7 +222,8 @@ fun ReminderFormScreen(
                         locationLatitude = place.latitude,
                         locationLongitude = place.longitude,
                         locationRadius = radius,
-                        triggerType = triggerType
+                        triggerType = triggerType,
+                        schedule = schedule
                     )
                     onSave(reminder)
                 },

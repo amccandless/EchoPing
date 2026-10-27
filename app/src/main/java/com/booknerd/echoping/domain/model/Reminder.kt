@@ -14,4 +14,7 @@ data class Reminder(
 
     val triggerType: TriggerType = TriggerType.ENTER,
     val isActive: Boolean = true,
+
+    val schedule: Schedule = Schedule(),
+    val lastTriggeredAt: Long? = null, // epoch millis of the last notification
 )

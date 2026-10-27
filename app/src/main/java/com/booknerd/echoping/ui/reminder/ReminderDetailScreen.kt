@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.booknerd.echoping.domain.model.Reminder
 import com.booknerd.echoping.domain.model.TriggerType
+import com.booknerd.echoping.domain.model.describe
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -109,6 +110,7 @@ fun ReminderDetailScreen(
                     TriggerType.BOTH -> "When I arrive or leave"
                 }
             )
+            DetailRow("Repeats", reminder.schedule.describe())
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

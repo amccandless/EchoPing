@@ -39,6 +39,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // java.time (used by reminder schedules) needs desugaring below API 26
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -54,6 +56,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     val room_version = "2.7.1"
 
     implementation(libs.androidx.core.ktx)

@@ -32,8 +32,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                val now = System.currentTimeMillis()
                 event.triggeringGeofences?.forEach { geofence ->
-                    repo.getById(geofence.requestId)?.let { reminder ->
+                    repo.handleTrigger(geofence.requestId, now)?.let { reminder ->
                         ReminderNotifier.show(context, reminder)
                     }
                 }
